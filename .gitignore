@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+gtl.vcxproj.filters
+gtl.vcxproj.user
+Debug
+gtl.opensdf
+gtl.sdf
+gtl.v12.suo
