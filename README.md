@@ -1,11 +1,14 @@
 # gtl
 Game (or performance) oriented stl replacement
 
+# Work In progress.
+# Do NOT use in production
+
 ## TODO
 
  - [x] heap
  - [x] aligned heap (msvc)
- - [ ] vector
+ - [x] vector
  - [ ] array
  - [ ] paged_vector
  - [ ] map
