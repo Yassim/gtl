@@ -5,6 +5,7 @@
 
 namespace gtl {
 
+#pragma warning( disable : 4127 ) //  warning C4127: conditional expression is constant  
 #define static_if   if
 #define static_else else
 
@@ -89,17 +90,66 @@ namespace gtl {
         inline pair(const first_type& a, const second_type& b) : first(a), second(b) {}
         inline ~pair() {}
 
+        pair& operator=(const pair& i_rhs)
+        {
+            pair t(i_rhs).swap(t, *this);
+            return *this;
+        }
+
+        void swap(pair& i_rhs)
+        {
+            swap(first, i_rhs.first);
+            swap(second, i_rhs.second);
+        }
+
         first_type first;
         second_type second;
     };
+
+    template<typename t1, typename t2>
+    void swap(pair<t1, t2>& i_a, pair<t1, t2>& i_b)
+    {
+        i_a.swap(i_b);
+    }
 
     template<typename t1, typename t2, typename i1, typename i2>
     class iterator_pair
     {
     public:
+        template<typename t1, typename t2>
+        struct pair_cheat : public pair<t1, t2>
+        {
+            typedef typename t1 first_type;
+            typedef typename t2 second_type;
+
+            inline pair_cheat(const first_type& a, const second_type& b) : pair(a, b) {}
+
+            inline pair& operator*()
+            {
+                return *this;
+            }
+
+            inline const pair& operator*() const
+            {
+                return *this;
+            }
+
+            // probably only need these for the cheat to work
+            inline const pair* operator->() const
+            {
+                return this;
+            }
+
+            inline  pair* operator->()
+            {
+                return this;
+            }
+        };
+
         typedef typename t1 first_type;
         typedef typename t2 second_type;
         typedef typename pair<first_type, second_type> value_type;
+        typedef typename pair_cheat<first_type, second_type> cheat_value_type;
         typedef typename i1 first_iterator;
         typedef typename i2 second_iterator;
 
@@ -136,9 +186,9 @@ namespace gtl {
             return value_type(*m_i1, *m_i2);
         }
 
-        inline value_type operator->() const
+        inline cheat_value_type operator->() const
         {
-            return value_type(*m_i, *m_i2);
+            return cheat_value_type(*m_i1, *m_i2);
         }
 
     private:

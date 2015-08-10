@@ -114,6 +114,7 @@ namespace persistant {
 
     private:
         devirtualised_base();
+        devirtualised_base& operator=(devirtualised_base&);
 
         // the only member
         const class_storage_type km_class;

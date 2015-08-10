@@ -53,6 +53,7 @@ void test_vector()
 {
     gtl::vector<int> tfoo;
     size_t n = sizeof(tfoo);
+    (void)n;
 
     tfoo.push_back(1);
     tfoo.emplace_back(2);
@@ -67,7 +68,7 @@ void test_vector()
         printf("$ %d\n", i);
     }
 
-    {int j= 5; }
+    {int j = 5; (void)j; }
 }
 
 void test_array()
@@ -84,7 +85,7 @@ void test_array()
         printf("$ %d\n", i);
     }
 
-    {int j = 5; }
+    {int j = 5; (void)j; }
 }
 
 void test_grow_pow2()
@@ -107,6 +108,8 @@ void test_map()
         printf("kv %d %d\n", i.first, i.second);
         i.second = 10;
     }
+
+    tfoo.begin()->second = 11;
 
     for (auto i : tfoo) {
         printf("kv %d %d\n", i.first, i.second);
@@ -262,6 +265,9 @@ void test_devirtualised()
 
 int main(int i_argc, char ** i_argv)
 {
+    (void)i_argc;
+    (void)i_argv;
+
     test_grow_pow2();
     test_lifetime_conservitive();
     test_vector();

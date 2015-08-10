@@ -27,6 +27,8 @@ struct lifetime_pod
     static void default_construct_range(T* i_begin, T* const i_end) 
     {
         /* no op  */
+        (void)i_begin;
+        (void)i_end;
     }
 
     static void value_construct_range(T* i_begin, T* const i_end, const T& i_value)
@@ -38,6 +40,8 @@ struct lifetime_pod
     static void deconstruct_range(T* i_begin, T* const i_end) 
     {
         /* no op  */
+        (void)i_begin;
+        (void)i_end;
     }
 
     static void move(T* i_dst, T* i_src, T* const i_end)

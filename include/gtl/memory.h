@@ -13,7 +13,7 @@ class SystemHeap
 {
 public:
     SystemHeap() {}
-    SystemHeap(const SystemHeap& i_rhs) {}
+    SystemHeap(const SystemHeap& ) {}
     ~SystemHeap() {}
 
     inline void * alloc(size_type i_n)               { return ::malloc(i_n); }
@@ -27,7 +27,7 @@ class AlignedSystemHeap
 {
 public:
     AlignedSystemHeap() {}
-    AlignedSystemHeap(const AlignedSystemHeap& i_rhs) {}
+    AlignedSystemHeap(const AlignedSystemHeap& ) {}
     ~AlignedSystemHeap() {}
 
     inline void * alloc(size_type i_n)               { return ::_aligned_malloc(i_n, kAlign); }
