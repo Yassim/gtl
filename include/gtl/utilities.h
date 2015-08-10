@@ -107,26 +107,36 @@ namespace gtl {
         inline iterator_pair(const first_iterator& i_i1, const second_iterator& i_i2) : m_i1(i_i1), m_i2(i_i2) {}
         inline ~iterator_pair() {}
 
-        iterator_pair& operator++()
+        inline iterator_pair& operator++()
         {
             ++m_i1;
             ++m_i2;
             return *this;
         }
 
-        iterator_pair operator++(int)
+        inline iterator_pair operator++(int)
         {
             iterator_pair t(*this);
             ++*this;
             return t;
         }
 
-        bool operator==(const iterator_pair& i_rhs)
+        inline bool operator==(const iterator_pair& i_rhs)
         {
             return m_i1 == i_rhs.m_i1; // should just need to compare only the first.
         }
 
-        value_type operator*() const
+        inline bool operator!=(const iterator_pair& i_rhs)
+        {
+            return m_i1 != i_rhs.m_i1; // should just need to compare only the first.
+        }
+
+        inline value_type operator*() const
+        {
+            return value_type(*m_i1, *m_i2);
+        }
+
+        inline value_type operator->() const
         {
             return value_type(*m_i, *m_i2);
         }

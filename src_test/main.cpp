@@ -100,6 +100,12 @@ void test_grow_pow2()
 void test_map()
 {
     gtl::map<int, int> tfoo;
+
+    tfoo[0] = 9;
+
+    for (auto i : tfoo) {
+        printf("kv %d %d\n", i.first, i.second);
+    }
 }
 
 void test_devirtualised()
@@ -255,6 +261,7 @@ int main(int i_argc, char ** i_argv)
     test_lifetime_conservitive();
     test_vector();
     test_array();
+    test_map();
     test_devirtualised();
     return 0;
 }
