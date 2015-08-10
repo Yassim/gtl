@@ -71,11 +71,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\gtl\array.h" />
     <ClInclude Include="include\gtl\grow.h" />
     <ClInclude Include="include\gtl\locking.h" />
     <ClInclude Include="include\gtl\memory.h" />
     <ClInclude Include="include\gtl\map.h" />
     <ClInclude Include="include\gtl\meta\lifetime_util.h" />
+    <ClInclude Include="include\gtl\persistant\devirtualised_base.h" />
     <ClInclude Include="include\gtl\types.h" />
     <ClInclude Include="include\gtl\utilities.h" />
     <ClInclude Include="include\gtl\vector.h" />

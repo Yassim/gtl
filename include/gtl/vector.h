@@ -86,13 +86,6 @@ public:
 //        base_vector(base_vector&& other, const Allocator& alloc);
 //    base_vector(std::initializer_list<T> init, const Allocator& alloc = Allocator());
 
-/*    base_vector(allocator_type& i_heap = allocator_type())
-        : base0_type(i_heap)
-        , m_p(nullptr)
-        , m_count(0)
-        , m_capacity(0)
-    {}
-*/
     ~base_vector()
     {
         clear();
@@ -399,11 +392,11 @@ public:
             m_count = count;
         }
         else
-            if (count > m_count) {
-                reserve(count);
-                lifetime_util::value_construct_range(m_p + m_count, m_p + count, value);
-                m_count = count;
-            }
+        if (count > m_count) {
+            reserve(count);
+            lifetime_util::value_construct_range(m_p + m_count, m_p + count, value);
+            m_count = count;
+        }
     }
 
     void swap(base_vector& i_rhs)
@@ -424,20 +417,38 @@ private:
 // The vector
 //
 template<typename T, class THeap = SystemHeap>
-class vector : public base_vector < vector_cfg< T, THeap > > {};
+class vector : public base_vector < vector_cfg< T, THeap > >
+{
+    typedef base_vector < vector_cfg< T, THeap > > base;
+public:
+    typedef typename base::Allocator Allocator;
+
+    explicit vector(const Allocator& i_heap) : base(i_heap)  {}
+    vector() : base(Allocator()) {}
+    //    explicit base_vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator());
+    vector(size_type count, const T& value, const Allocator& alloc = Allocator()) : base(count, value, alloc) { }
+    explicit vector(size_type count) : base(count) {  }
+    explicit vector(size_type count, const Allocator& alloc = Allocator()) : base(count, alloc) { }
+    template< class InputIt >
+    vector(InputIt first, InputIt last, const Allocator& alloc = Allocator()) : base(first, last, alloc) {  }
+    vector(const vector& other) : base(other) {  }
+    vector(const vector& other, const Allocator& alloc) : base(other, alloc) {  }
+    //        vector(vector&& other)
+    //        vector(vector&& other, const Allocator& alloc);
+    //    vector(std::initializer_list<T> init, const Allocator& alloc = Allocator());
+    inline ~vector() { }
+};
 
 
-// TEMPLATE FUNCTION begin
 template<typename T, class THeap> inline
 const typename vector<T, THeap>::iterator begin(vector<T, THeap>& i_vector)
-{	// get beginning of sequence
+{
     return i_vector.begin();
 }
 
-// TEMPLATE FUNCTION end
 template<typename T, class THeap> inline
 const typename vector<T, THeap>::iterator end(vector<T, THeap>& i_vector)
-{	// get beginning of sequence
+{
     return i_vector.end();
 }
 

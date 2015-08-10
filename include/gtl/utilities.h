@@ -70,12 +70,73 @@ namespace gtl {
     }
 
     template< class InputIt >
-    size_type count(InputIt first, InputIt last)
+    size_type distance(InputIt first, InputIt last)
     {
         size_type c = 0;
         while (first++ != last) c++;
         return c;
     }
+
+    template<typename t1, typename t2>
+    struct pair
+    {
+        typedef typename t1 first_type;
+        typedef typename t2 second_type;
+
+        inline pair() {}
+        template<typename U, typename V>
+        inline pair(const pair<U, V>& pr) : first(pr.first), second(pr.second) {}
+        inline pair(const first_type& a, const second_type& b) : first(a), second(b) {}
+        inline ~pair() {}
+
+        first_type first;
+        second_type second;
+    };
+
+    template<typename t1, typename t2, typename i1, typename i2>
+    class iterator_pair
+    {
+    public:
+        typedef typename t1 first_type;
+        typedef typename t2 second_type;
+        typedef typename pair<first_type, second_type> value_type;
+        typedef typename i1 first_iterator;
+        typedef typename i2 second_iterator;
+
+        inline iterator_pair(const iterator_pair& i_rhs) : m_i1(i_rhs.m_i1), m_i2(i_rhs.m_i2) {}
+        inline iterator_pair(const first_iterator& i_i1, const second_iterator& i_i2) : m_i1(i_i1), m_i2(i_i2) {}
+        inline ~iterator_pair() {}
+
+        iterator_pair& operator++()
+        {
+            ++m_i1;
+            ++m_i2;
+            return *this;
+        }
+
+        iterator_pair operator++(int)
+        {
+            iterator_pair t(*this);
+            ++*this;
+            return t;
+        }
+
+        bool operator==(const iterator_pair& i_rhs)
+        {
+            return m_i1 == i_rhs.m_i1; // should just need to compare only the first.
+        }
+
+        value_type operator*() const
+        {
+            return value_type(*m_i, *m_i2);
+        }
+
+    private:
+        inline iterator_pair() {}
+
+        first_iterator  m_i1;
+        second_iterator m_i2;
+    };
 };
 
 
