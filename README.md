@@ -11,7 +11,7 @@ Game (or performance) oriented stl replacement
  - [x] vector
  - [ ] array
  - [ ] paged_vector
- - [ ] map
+ - [ ] map (in progress)
  - [ ] unordered_map
  - [ ] queue
  - [ ] pooled_string
@@ -22,7 +22,7 @@ Game (or performance) oriented stl replacement
     - [ ] text (xml)
     - [ ] binary (native endian)
  - [ ] persistant
-   - [ ] devirtualised base
+   - [x] devirtualised base
    - [ ] persistant heap
    - [ ] persistant_ptr
  - [ ] spatial
