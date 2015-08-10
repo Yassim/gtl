@@ -109,15 +109,16 @@ public:
     inline const data_type& operator[](const key_type& i_ndx) const   { return m_datas[index_of(i_ndx)]; }
 
     // Iterators
-    typedef iterator_pair<const key_type&, data_type&, key_type*, data_type*>           iterator;
+    typedef iterator_pair<const key_type&, data_type&, key_type*, data_type*>                           iterator;
+    typedef iterator_pair<const key_type&, const data_type&, const key_type*, const data_type*>         const_iterator;
     //typedef const T*    const_iterator;
 
     inline iterator       begin()                       { return iterator(m_keys, m_datas); }
-    //inline const_iterator begin() const                 { return m_p; }
-    //inline const_iterator cbegin() const                { return m_p; }
+    inline const_iterator begin() const                 { return const_iterator(m_keys, m_datas); }
+    inline const_iterator cbegin() const                { return const_iterator(m_keys, m_datas); }
     inline iterator       end()                         { return iterator(m_keys + m_count, m_datas + m_count); }
-    //inline const_iterator end() const                   { return m_p + m_count; }
-    //inline const_iterator cend() const                  { return m_p + m_count; }
+    inline const_iterator end() const                   { return const_iterator(m_keys + m_count, m_datas + m_count); }
+    inline const_iterator cend() const                  { return const_iterator(m_keys + m_count, m_datas + m_count);; }
     //inline iterator       rbegin()                      { return m_p; }
     //inline const_iterator rbegin() const                { return m_p; }
     //inline const_iterator crbegin() const               { return m_p; }
@@ -185,7 +186,7 @@ private:
         // permitted to grow
         key_type * i = m_keys;
         key_type * e = m_keys + m_count;
-        size_type ndx = 0;
+        size_type ndx = m_count;
 
         //TODO: better than liniear
         for (; i != e; ++i) {
@@ -196,13 +197,11 @@ private:
                 // where it should be, but isnt.
                 //lets expand and slot this in.
                 ndx = i - m_keys;
-                goto insert;
+                break;
             }
         }
         // else not here, and should be at the end
-        ndx = m_count;
-
-    insert:
+        // ndx should be untouched, thus at m_count
         reserve(m_count + 1);
         // refresh itorators
         i = m_keys + ndx;
