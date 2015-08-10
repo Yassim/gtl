@@ -66,7 +66,6 @@ public:
     
 
     // Construction
-
     explicit base_vector(const Allocator& i_heap)
         : base0_type(i_heap)
         , m_p(nullptr)
@@ -159,15 +158,15 @@ public:
     {
         const size_type n = growth_policy::next_size(i_n);
         if (n > static_cast<size_type>(m_capacity)) {
-            static_if(lifetime_util::kReallocSensitive) {
+            /*static_if(lifetime_util::kReallocSensitive) {
                 T* p = reinterpret_cast<T*>(base0_type::alloc(n * sizeof(T)));
-                lifetime_util::copy(p, begin(), end());
-                lifetime_util::deconstruct_range(begin(), end());
+                lifetime_util::move_non_overlap(p, begin(), end());
                 base0_type::free(m_p);
                 m_p = p;
             } static_else {
                 m_p = reinterpret_cast<T*>(base0_type::realloc(m_p, n * sizeof(T)));
-            }
+            }*/
+            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base0_type&>(*this));
             m_capacity = n;
         }
     }
@@ -178,15 +177,15 @@ public:
     {
         if (m_count) {
             const size_type n = growth_policy::next_size(m_count);
-            static_if(lifetime_util::kReallocSensitive) {
+            /*static_if(lifetime_util::kReallocSensitive) {
                 T* p = reinterpret_cast<T*>(base0_type::alloc(n * sizeof(T)));
-                lifetime_util::copy(p, begin(), end());
-                lifetime_util::deconstruct_range(begin(), end());
+                lifetime_util::move_non_overlap(p, begin(), end());
                 base0_type::free(m_p);
                 m_p = p;
             } static_else{
                 m_p = reinterpret_cast<T*>(base0_type::realloc(m_p, n * sizeof(T)));
-            }
+            }*/
+            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base0_type&>(*this));
             m_capacity = n;
         } else {
             base0_type::free(m_p);

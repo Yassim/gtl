@@ -280,6 +280,18 @@ struct lifetime_util_select<TYPE>                   \
     typedef lifetime_ ## POLICY <TYPE> type;  \
 };
 
+template< typename lifetime_util, typename T, typename heap>
+T* typesafe_realloc(T* i_p, size_type i_count, size_type i_size, heap& i_heap)
+{
+    static_if (lifetime_util::kReallocSensitive) {
+        T* p = reinterpret_cast<T*>(i_heap.alloc(i_size * sizeof(T)));
+        lifetime_util::move_non_overlap(p, i_p, i_p + i_count);
+        i_heap.free(i_p);
+        return p;
+    } static_else {
+        return reinterpret_cast<T*>(i_heap.realloc(i_p, i_size * sizeof(T)));
+    }
+}
 
 GTL_LIFETIME_TYPE_SHOUOLD_USE(int, pod);
 
