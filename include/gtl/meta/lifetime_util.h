@@ -42,12 +42,17 @@ struct lifetime_pod
 
     static void move(T* i_dst, T* i_src, T* const i_end)
     {
-        memmove(i_dst, i_src, sizeof(T) * (i_end - i_dst));
+        memmove(i_dst, i_src, sizeof(T) * (i_end - i_src));
     }
 
     static void copy(T* i_dst, T* i_src, T* const i_end)
     {
-        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst));
+        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_src));
+    }
+
+    static void move_non_overlap(T* i_dst, T* i_src, T* const i_end)
+    {
+        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_src));
     }
 
     template< gtl_tmp_typename1 >
@@ -103,6 +108,10 @@ struct lifetime_simple
         memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst))
     }
 
+    static void move_non_overlap(T* i_dst, T* i_src, T* const i_end)
+    {
+        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst));
+    }
 
     template< gtl_tmp_typename1 >
     static void emplace(T* i_p, gtl_dec_typename1)
@@ -223,6 +232,12 @@ struct lifetime_conservitive
         gtl_assert(!overlap(i_dst, i_src, i_end));
         while (i_src != i_end)
             new (i_dst++) T(*i_src++);
+    }
+
+    static void move_non_overlap(T* i_dst, T* i_src, T* const i_end)
+    {
+        copy(i_dst, i_src, i_end);
+        deconstruct_range(i_src, i_end);
     }
 
     template< gtl_tmp_typename1 >
