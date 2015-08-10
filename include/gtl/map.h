@@ -149,8 +149,7 @@ public:
             m_keys = meta::typesafe_realloc<key_lifetime_util>(m_keys, m_count, n, static_cast<base0_type&>(*this));
             m_datas = meta::typesafe_realloc<data_lifetime_util>(m_datas, m_count, n, static_cast<base0_type&>(*this));
             m_capacity = n;
-        }
-        else {
+        } else {
             base0_type::free(m_keys);
             base0_type::free(m_datas);
             m_keys = nullptr;
@@ -211,7 +210,7 @@ private:
         key_lifetime_util::move(i + 1, i, e);
         key_lifetime_util::value_construct_range(i, i + 1, i_key);
 
-        data_type * di = m_datas;
+        data_type * di = m_datas + ndx;
         data_type * de = m_datas + m_count;
 
         data_lifetime_util::move(di + 1, di, de);
