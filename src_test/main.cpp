@@ -105,6 +105,11 @@ void test_map()
 
     for (auto i : tfoo) {
         printf("kv %d %d\n", i.first, i.second);
+        i.second = 10;
+    }
+
+    for (auto i : tfoo) {
+        printf("kv %d %d\n", i.first, i.second);
     }
 }
 

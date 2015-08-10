@@ -109,7 +109,7 @@ public:
     inline const data_type& operator[](const key_type& i_ndx) const   { return m_datas[index_of(i_ndx)]; }
 
     // Iterators
-    typedef iterator_pair<key_type, data_type, key_type*, data_type*>           iterator;
+    typedef iterator_pair<const key_type&, data_type&, key_type*, data_type*>           iterator;
     //typedef const T*    const_iterator;
 
     inline iterator       begin()                       { return iterator(m_keys, m_datas); }
