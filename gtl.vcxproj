@@ -83,6 +83,8 @@
     <ClInclude Include="include\gtl\map.h" />
     <ClInclude Include="include\gtl\meta\lifetime_util.h" />
     <ClInclude Include="include\gtl\persistant\devirtualised_base.h" />
+    <ClInclude Include="include\gtl\persistant\filebacked_heap.h" />
+    <ClInclude Include="include\gtl\persistant\offset_ptr.h" />
     <ClInclude Include="include\gtl\types.h" />
     <ClInclude Include="include\gtl\utilities.h" />
     <ClInclude Include="include\gtl\vector.h" />

@@ -2,6 +2,7 @@
 #define GTL_TYPES
 
 #include <limits>
+#include <stdint.h>
 
 namespace gtl {
     typedef size_t size_type;

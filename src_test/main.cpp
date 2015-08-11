@@ -2,6 +2,7 @@
 #include "..\include/gtl/array.h"
 #include "..\include/gtl/map.h"
 #include "..\include/gtl/persistant\devirtualised_base.h"
+#include "..\include/gtl/persistant\offset_ptr.h"
 //#include <vector>
 //#include <utility>
 
@@ -266,6 +267,28 @@ void test_devirtualised()
     bar.test();
 }
 
+void test_offsetptr()
+{
+    gtl::persistant::offset_ptr<int, int16_t> tfoo;
+    int bar = 0;
+    tfoo = &bar;
+
+    *tfoo = 42;
+
+    {int j = 5; (void)j; }
+
+    gtl::vector<gtl::persistant::offset_ptr<int, int16_t>> tafoo;
+
+    tafoo.push_back(tfoo);
+    tafoo.push_back(tfoo);
+    tafoo.push_back(tfoo);
+    tafoo.push_back(tfoo);
+
+    for (auto i : tafoo) {
+        (*i)++;
+    }
+}
+
 int main(int i_argc, char ** i_argv)
 {
     (void)i_argc;
@@ -277,5 +300,6 @@ int main(int i_argc, char ** i_argv)
     test_array();
     test_map();
     test_devirtualised();
+    test_offsetptr();
     return 0;
 }
