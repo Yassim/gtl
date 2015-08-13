@@ -94,6 +94,8 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\persistant\filebacked_heap.windows.cc" />
+    <ClCompile Include="src\utilities.cc" />
     <ClCompile Include="src_test\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
