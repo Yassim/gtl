@@ -1,6 +1,10 @@
 #ifndef GTL_UTILS
 #define GTL_UTILS
 
+#ifndef GTL_TYPES
+#include "types.h"
+#endif // !GTL_TYPES
+
 #include <assert.h>
 
 namespace gtl {

@@ -9,12 +9,12 @@
 
 namespace gtl {
 
-class SystemHeap
+class system_heap
 {
 public:
-    SystemHeap() {}
-    SystemHeap(const SystemHeap& ) {}
-    ~SystemHeap() {}
+    system_heap() {}
+    system_heap(const system_heap& ) {}
+    ~system_heap() {}
 
     inline void * alloc(size_type i_n)               { return ::malloc(i_n); }
     inline void * realloc(void * i_p, size_type i_n) { return ::realloc(i_p, i_n); }
@@ -23,12 +23,12 @@ public:
 };
 
 template<size_type kAlign>
-class AlignedSystemHeap
+class aligned_system_heap
 {
 public:
-    AlignedSystemHeap() {}
-    AlignedSystemHeap(const AlignedSystemHeap& ) {}
-    ~AlignedSystemHeap() {}
+    aligned_system_heap() {}
+    aligned_system_heap(const aligned_system_heap& ) {}
+    ~aligned_system_heap() {}
 
     inline void * alloc(size_type i_n)               { return ::_aligned_malloc(i_n, kAlign); }
     inline void * realloc(void * i_p, size_type i_n) { return ::_aligned_realloc(i_p, i_n, kAlign); }

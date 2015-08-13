@@ -415,7 +415,7 @@ private:
 //
 // The vector
 //
-template<typename T, class THeap = SystemHeap>
+template<typename T, class THeap = system_heap>
 class vector : public base_vector < vector_cfg< T, THeap > >
 {
     typedef base_vector < vector_cfg< T, THeap > > base;

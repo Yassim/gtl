@@ -246,7 +246,7 @@ private:
     count_type      m_capacity;
 };
 
-template<typename key_type, typename data_type, class THeap = SystemHeap>
+template<typename key_type, typename data_type, class THeap = system_heap>
 class map : public base_map < map_cfg< key_type, data_type, THeap > >
 {
 };
