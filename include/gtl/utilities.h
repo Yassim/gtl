@@ -78,8 +78,8 @@ namespace gtl {
     template<typename t1, typename t2>
     struct pair
     {
-        typedef typename t1 first_type;
-        typedef typename t2 second_type;
+        typedef t1 first_type;
+        typedef t2 second_type;
 
         inline pair() {}
         template<typename U, typename V>
@@ -89,7 +89,7 @@ namespace gtl {
 
         pair& operator=(const pair& i_rhs)
         {
-            pair t(i_rhs).swap(t, *this);
+            pair t(i_rhs); t.swap(t, *this);
             return *this;
         }
 
@@ -113,42 +113,42 @@ namespace gtl {
     class iterator_pair
     {
     public:
-        template<typename t1, typename t2>
-        struct pair_cheat : public pair<t1, t2>
+        template<typename pair_t1, typename pair_t2>
+        struct pair_cheat : public pair<pair_t1, pair_t2>
         {
-            typedef typename t1 first_type;
-            typedef typename t2 second_type;
+            typedef pair_t1 first_type;
+            typedef pair_t2 second_type;
 
-            inline pair_cheat(const first_type& a, const second_type& b) : pair(a, b) {}
+            //inline pair_cheat(const first_type& a, const second_type& b) : pair(a, b) {}
 
-            inline pair& operator*()
+            inline pair<pair_t1, pair_t2>& operator*()
             {
                 return *this;
             }
 
-            inline const pair& operator*() const
+            inline const pair<pair_t1, pair_t2>& operator*() const
             {
                 return *this;
             }
 
             // probably only need these for the cheat to work
-            inline const pair* operator->() const
+            inline const pair<pair_t1, pair_t2>* operator->() const
             {
                 return this;
             }
 
-            inline  pair* operator->()
+            inline  pair<pair_t1, pair_t2>* operator->()
             {
                 return this;
             }
         };
 
-        typedef typename t1 first_type;
-        typedef typename t2 second_type;
-        typedef typename pair<first_type, second_type> value_type;
-        typedef typename pair_cheat<first_type, second_type> cheat_value_type;
-        typedef typename i1 first_iterator;
-        typedef typename i2 second_iterator;
+        typedef  t1 first_type;
+        typedef  t2 second_type;
+        typedef  pair<first_type, second_type> value_type;
+        typedef  pair_cheat<first_type, second_type> cheat_value_type;
+        typedef  i1 first_iterator;
+        typedef  i2 second_iterator;
 
         inline iterator_pair(const iterator_pair& i_rhs) : m_i1(i_rhs.m_i1), m_i2(i_rhs.m_i2) {}
         inline iterator_pair(const first_iterator& i_i1, const second_iterator& i_i2) : m_i1(i_i1), m_i2(i_i2) {}

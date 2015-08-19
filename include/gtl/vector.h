@@ -22,7 +22,7 @@
 #endif // !GTL_UTILS
 
 #ifndef GTLMETA_LIFETIME
-#include "meta\lifetime_util.h"
+#include "meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
 namespace gtl {
@@ -37,13 +37,13 @@ template<
     typename i_lifetime = typename meta::lifetime_util_select<i_type>::type
 > struct vector_cfg
 {
-    typedef typename i_type     T;
+    typedef i_type     T;
     typedef          i_heap     heap_base;
-    typedef typename i_count    count_type;
-    typedef typename i_locking  lock_base;
-    typedef typename i_growth   growth_policy;
-    typedef typename i_ptr      ptr_type;
-    typedef typename i_lifetime lifetime_util;
+    typedef i_count    count_type;
+    typedef i_locking  lock_base;
+    typedef i_growth   growth_policy;
+    typedef i_ptr      ptr_type;
+    typedef i_lifetime lifetime_util;
 };
 
 template<typename cfg_type>
@@ -94,7 +94,7 @@ public:
     base_vector& operator=(const base_vector& other)
     {
         if (this != &other) {
-            base_vector tmp(other).swap(*this);
+            base_vector tmp(other); tmp.swap(*this);
         }
         return *this;
     }
@@ -236,7 +236,7 @@ public:
     }
 
     template< class InputIt >
-    void insert(iterator pos, InputIt first, InputIt last)
+    void insert(iterator pos, InputIt first, InputIt last, const T& value)
     {
         size_type count = count(first, last);
         reserve(m_count + count);
@@ -246,7 +246,7 @@ public:
     }
 
     template< class InputIt >
-    iterator insert(const_iterator pos, InputIt first, InputIt last)
+    iterator insert(const_iterator pos, InputIt first, InputIt last, const T& value)
     {
         size_type count = count(first, last);
         reserve(m_count + count);
@@ -311,15 +311,15 @@ public:
 
     iterator erase(iterator first, iterator last)
     {
-        lifetime_util::deconstruct_range(pos, last);
-        lifetime_util::move(pos, last, end());
+        lifetime_util::deconstruct_range(first, last);
+        lifetime_util::move(first, last, end());
         m_count -= last - first;
     }
 
     iterator erase(const_iterator first, const_iterator last)
     {
-        lifetime_util::deconstruct_range(pos, last);
-        lifetime_util::move(pos, last, end());
+        lifetime_util::deconstruct_range(first, last);
+        lifetime_util::move(first, last, end());
         m_count -= last - first;
     }
 
