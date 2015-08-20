@@ -39,15 +39,15 @@ template<
     typename i_data_lifetime = typename meta::lifetime_util_select<i_data_type>::type
 > struct map_cfg
 {
-    typedef typename i_key_type     key_type;
-    typedef typename i_data_type   data_type;
-    typedef          i_heap     heap_base;
-    typedef typename i_count    count_type;
-    typedef typename i_growth   growth_policy;
-    typedef typename i_key_ptr  key_ptr_type;
-    typedef typename i_data_ptr  data_ptr_type;
-    typedef typename i_key_lifetime key_lifetime_util;
-    typedef typename i_data_lifetime data_lifetime_util;
+    typedef i_key_type     key_type;
+    typedef i_data_type   data_type;
+    typedef i_heap     heap_base;
+    typedef i_count    count_type;
+    typedef i_growth   growth_policy;
+    typedef i_key_ptr  key_ptr_type;
+    typedef i_data_ptr  data_ptr_type;
+    typedef i_key_lifetime key_lifetime_util;
+    typedef i_data_lifetime data_lifetime_util;
 };
 
 template<typename cfg_type>
@@ -76,7 +76,13 @@ public:
         , m_count(0)
         , m_capacity(0)
     {}
-    base_map() : base_map(Allocator()) {}
+    base_map()
+        : base0_type(Allocator())
+        , m_keys(nullptr)
+        , m_datas(nullptr)
+        , m_count(0)
+        , m_capacity(0)
+    {} //: base_map(Allocator()) {}
 
     ~base_map()
     {
@@ -87,7 +93,7 @@ public:
     base_map& operator=(const base_map& other)
     {
         if (this != &other) {
-            base_map tmp(other).swap(*this);
+            base_map(other).swap(*this);
         }
         return *this;
     }
@@ -226,7 +232,7 @@ private:
                 return i - m_keys;
             }
             if (*i > i_key) {
-                break
+                break;
             }
         }
         gtl_assert_msg(false, "Key not found");

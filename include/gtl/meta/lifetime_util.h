@@ -84,13 +84,13 @@ struct lifetime_simple
     static void default_construct_range(T* i_begin, T* const i_end)
     {
         while (i_begin != i_end)
-            new (i_being++) T();
+            new (i_begin++) T();
     }
 
     static void value_construct_range(T* i_begin, T* const i_end, const T& i_value)
     {
         while (i_begin != i_end)
-            new (i_being++) T(i_value);
+            new (i_begin++) T(i_value);
     }
 
     static void deconstruct_range(T* i_begin, T* const i_end)
@@ -104,12 +104,12 @@ struct lifetime_simple
 
     static void move(T* i_dst, T* i_src, T* const i_end)
     {
-        memmove(i_dst, i_src, sizeof(T) * (i_end - i_dst))
+        memmove(i_dst, i_src, sizeof(T) * (i_end - i_dst));
     }
 
     static void copy(T* i_dst, T* i_src, T* const i_end)
     {
-        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst))
+        memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst));
     }
 
     static void move_non_overlap(T* i_dst, T* i_src, T* const i_end)
@@ -278,7 +278,7 @@ struct lifetime_conservitive
 template<typename T>
 struct lifetime_util_select
 {
-    typedef typename lifetime_simple<T> type;
+    typedef lifetime_simple<T> type;
 };
 
 

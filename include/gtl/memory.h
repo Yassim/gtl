@@ -22,6 +22,7 @@ public:
     inline size_type max_size(size_type i_n)         { return i_n; }
 };
 
+#if defined(MSVC)
 template<size_type kAlign>
 class aligned_system_heap
 {
@@ -35,6 +36,7 @@ public:
     inline void free(void * i_p)                     { ::_aligned_free(i_p); }
     inline size_type max_size(size_type i_n)         { return i_n; }
 };
+#endif
 
 };
 

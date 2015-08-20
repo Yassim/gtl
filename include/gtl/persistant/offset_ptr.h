@@ -20,7 +20,7 @@ namespace persistant {
 template< typename cfg_storage_type >
 class base_offset_ptr
 {
-    typedef typename cfg_storage_type storage_type;
+    typedef cfg_storage_type storage_type;
 
 public:
 
@@ -49,28 +49,29 @@ private:
 template<typename T, typename storage_type = int32_t>
 class offset_ptr : public base_offset_ptr<storage_type>
 {
+    typedef base_offset_ptr<storage_type> base_type;
 public:
-    offset_ptr()                            { set(nullptr); }
-    offset_ptr(T* i_p)                      { set(i_p); }
-    offset_ptr(const offset_ptr& i_rhs)     { set(i_rhs.get()); }
+    offset_ptr()                            { base_type::set(nullptr); }
+    offset_ptr(T* i_p)                      { base_type::set(i_p); }
+    offset_ptr(const offset_ptr& i_rhs)     { base_type::set(i_rhs.get()); }
     ~offset_ptr()                           { }
 
-    inline       T* operator ->()           { return static_cast<T*>(get()); }
-    inline const T* operator ->() const     { return static_cast<const T*>(get()); }
-    inline       T& operator *()            { return *static_cast<T*>(get()); }
-    inline const T& operator *() const      { return *static_cast<const T*>(get()); }
-    inline operator T* ()                   { return static_cast<T*>(get()); }
-    inline operator const T* () const       { return static_cast<const T*>(get()); }
+    inline       T* operator ->()           { return static_cast<T*>(base_type::get()); }
+    inline const T* operator ->() const     { return static_cast<const T*>(base_type::get()); }
+    inline       T& operator *()            { return *static_cast<T*>(base_type::get()); }
+    inline const T& operator *() const      { return *static_cast<const T*>(base_type::get()); }
+    inline operator T* ()                   { return static_cast<T*>(base_type::get()); }
+    inline operator const T* () const       { return static_cast<const T*>(base_type::get()); }
 
     inline offset_ptr& operator=(offset_ptr& i_rhs)
     {
-        set(i_rhs.get());
+        base_type::set(i_rhs.get());
         return *this;
     }
 
     inline offset_ptr& operator=(T* i_rhs)
     {
-        set(i_rhs);
+        base_type::set(i_rhs);
         return *this;
     }
 };
