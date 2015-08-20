@@ -59,6 +59,10 @@ struct lifetime_pod
         memcpy(i_dst, i_src, sizeof(T) * (i_end - i_src));
     }
 
+    static void emplace(T* i_p)
+    {
+    }
+
     template< gtl_tmp_typename1 >
     static void emplace(T* i_p, gtl_dec_typename1)
     {
@@ -115,6 +119,11 @@ struct lifetime_simple
     static void move_non_overlap(T* i_dst, T* i_src, T* const i_end)
     {
         memcpy(i_dst, i_src, sizeof(T) * (i_end - i_dst));
+    }
+
+    static void emplace(T* i_p)
+    {
+        new (i_p)T();
     }
 
     template< gtl_tmp_typename1 >

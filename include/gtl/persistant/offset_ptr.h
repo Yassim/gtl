@@ -46,10 +46,10 @@ private:
     storage_type m_offset;
 };
 
-template<typename T, typename storage_type = int32_t>
-class offset_ptr : public base_offset_ptr<storage_type>
+template<typename T, typename offset_type = int32_t>
+class offset_ptr : public base_offset_ptr<offset_type>
 {
-    typedef base_offset_ptr<storage_type> base_type;
+    typedef base_offset_ptr<offset_type> base_type;
 public:
     offset_ptr()                            { base_type::set(nullptr); }
     offset_ptr(T* i_p)                      { base_type::set(i_p); }

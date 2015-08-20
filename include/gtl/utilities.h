@@ -13,7 +13,7 @@ namespace gtl {
 #define static_if   if
 #define static_else else
 
-#define gtl_assert(X)   assert(X)
+#define gtl_assert(X)   assert((X))
 #define gtl_assert_msg(X, MSG)   assert((X) && !(MSG))
 
 
