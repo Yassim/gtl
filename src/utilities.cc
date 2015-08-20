@@ -1,4 +1,4 @@
-#include "..\include\gtl\utilities.h"
+#include "../include/gtl/utilities.h"
 
 namespace gtl {
 

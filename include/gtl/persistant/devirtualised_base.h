@@ -3,11 +3,11 @@
 
 
 #ifndef GTL_TYPES
-#include "..\types.h"
+#include "../types.h"
 #endif // !GTL_TYPES
 
 #ifndef GTL_UTILS
-#include "..\utilities.h"
+#include "../utilities.h"
 #endif // !GTL_UTILS
 
 

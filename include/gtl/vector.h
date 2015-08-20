@@ -22,7 +22,7 @@
 #endif // !GTL_UTILS
 
 #ifndef GTLMETA_LIFETIME
-#include "meta\lifetime_util.h"
+#include "meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
 namespace gtl {
@@ -31,7 +31,6 @@ template<
     typename i_type,
     class    i_heap,
     typename i_count = int,
-    class    i_locking = locking_noop,
     typename i_growth = grow_pow2_cap<512>,
     typename i_ptr = i_type*,
     typename i_lifetime = typename meta::lifetime_util_select<i_type>::type
@@ -40,7 +39,6 @@ template<
     typedef typename i_type     T;
     typedef          i_heap     heap_base;
     typedef typename i_count    count_type;
-    typedef typename i_locking  lock_base;
     typedef typename i_growth   growth_policy;
     typedef typename i_ptr      ptr_type;
     typedef typename i_lifetime lifetime_util;
@@ -49,18 +47,16 @@ template<
 template<typename cfg_type>
 class base_vector
     : private cfg_type::heap_base
-    , private cfg_type::lock_base
 {
     typedef typename cfg_type::count_type count_type;
-    typedef typename cfg_type::ptr_type ptr_type;
     typedef typename cfg_type::heap_base base0_type;
-    typedef typename cfg_type::lock_base base1_type;
     typedef typename cfg_type::growth_policy growth_policy;
     typedef typename cfg_type::lifetime_util lifetime_util;
 public:
     typedef typename cfg_type::T T;
     typedef typename cfg_type::T value_type;
-    typedef typename cfg_type::lock_base lock_type;
+    typedef typename cfg_type::ptr_type ptr_type;
+    //typedef typename meta::lifetime_util_select< ptr_type >::type ptr_lifetime;
 
     class Allocator : public cfg_type::heap_base {};
     
@@ -118,7 +114,6 @@ public:
 
     // this we are actually object shearing 
     inline Allocator allocator() const             { return Allocator(*this); }
-    inline lock_type& locking()                    { return static_cast<lock_type&>(*this); }
 
     // Element access
     inline T&       at(size_type i_ndx)                 { gtl_assert(i_ndx < m_count); return m_p[i_ndx]; }
@@ -176,15 +171,8 @@ public:
     void             shrink_to_fit()
     {
         if (m_count) {
-            const size_type n = growth_policy::next_size(m_count);
-            /*static_if(lifetime_util::kReallocSensitive) {
-                T* p = reinterpret_cast<T*>(base0_type::alloc(n * sizeof(T)));
-                lifetime_util::move_non_overlap(p, begin(), end());
-                base0_type::free(m_p);
-                m_p = p;
-            } static_else{
-                m_p = reinterpret_cast<T*>(base0_type::realloc(m_p, n * sizeof(T)));
-            }*/
+            const size_type n = growth_policy::next_size(m_count);  // should this be count, adn not n?
+                                                                    // should the memory be exactly the size needed, or the next size?
             m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base0_type&>(*this));
             m_capacity = n;
         } else {
@@ -241,7 +229,7 @@ public:
         size_type count = count(first, last);
         reserve(m_count + count);
         lifetime_util::move(pos + count, pos, end());
-        lifetime_util::value_construct_range(pos, pos + count, value);
+        lifetime_util::copy(pos, first, last);
         m_count += count;
     }
 
@@ -251,11 +239,18 @@ public:
         size_type count = count(first, last);
         reserve(m_count + count);
         lifetime_util::move(pos + count, pos, end());
-        lifetime_util::value_construct_range(pos, pos + count, value);
+        lifetime_util::copy(pos, first, last);
         m_count += count;
     }
 
     //iterator insert(const_iterator pos, std::initializer_list<T> ilist);
+    iterator emplace(const_iterator pos)
+    {
+        reserve(m_count + 1);
+        lifetime_util::move(pos + 1, pos, end());
+        lifetime_util::emplace(pos);
+        m_count++;
+    }
 
     template< gtl_tmp_typename1 >
     iterator emplace(const_iterator pos, gtl_dec_typename1)
@@ -331,6 +326,12 @@ public:
     }
 
     //void push_back(T&& value);
+    void emplace_back()
+    {
+        reserve(m_count + 1);
+        lifetime_util::emplace(end());
+        m_count++;
+    }
 
     template< gtl_tmp_typename1 >
     void emplace_back(gtl_dec_typename1)
@@ -421,6 +422,7 @@ class vector : public base_vector < vector_cfg< T, THeap > >
     typedef base_vector < vector_cfg< T, THeap > > base;
 public:
     typedef typename base::Allocator Allocator;
+//    typedef typename base::ptr_lifetime ptr_lifetime;
 
     explicit vector(const Allocator& i_heap) : base(i_heap)  {}
     vector() : base(Allocator()) {}
@@ -450,6 +452,24 @@ const typename vector<T, THeap>::iterator end(vector<T, THeap>& i_vector)
 {
     return i_vector.end();
 }
+
+//
+namespace meta {
+    /*template<typename T, class THeap>
+    struct lifetime_util_select< ::gtl::vector<T, THeap> >
+    {
+        typedef typename ::gtl::vector<T, THeap>::ptr_type          ptr_type;
+        typedef typename lifetime_util_select< ptr_type >::type     type;
+    };*/
+
+    template<typename cfg_type>
+    struct lifetime_util_select< ::gtl::base_vector<cfg_type> >
+    {
+        typedef typename ::gtl::base_vector<cfg_type>::ptr_type     ptr_type;
+        typedef typename lifetime_util_select< ptr_type >::type     type;
+    };
+}
+
 
 };
 

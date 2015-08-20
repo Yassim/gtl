@@ -22,7 +22,7 @@
 #endif // !GTL_UTILS
 
 #ifndef GTLMETA_LIFETIME
-#include "meta\lifetime_util.h"
+#include "meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
 namespace gtl {
@@ -32,7 +32,6 @@ template<
     typename i_data_type,
     class    i_heap,
     typename i_count = int,
-    class    i_locking = locking_noop,
     typename i_growth = grow_pow2_cap<512>,
     typename i_key_ptr = i_key_type*,
     typename i_data_ptr = i_data_type*,
@@ -44,7 +43,6 @@ template<
     typedef typename i_data_type   data_type;
     typedef          i_heap     heap_base;
     typedef typename i_count    count_type;
-    typedef typename i_locking  lock_base;
     typedef typename i_growth   growth_policy;
     typedef typename i_key_ptr  key_ptr_type;
     typedef typename i_data_ptr  data_ptr_type;
@@ -55,7 +53,6 @@ template<
 template<typename cfg_type>
 class base_map
     : private cfg_type::heap_base
-    , private cfg_type::lock_base
 {
     typedef typename cfg_type::key_type             key_type;
     typedef typename cfg_type::data_type            data_type;
@@ -63,13 +60,10 @@ class base_map
     typedef typename cfg_type::key_ptr_type         key_ptr_type;
     typedef typename cfg_type::data_ptr_type        data_ptr_type;
     typedef typename cfg_type::heap_base            base0_type;
-    typedef typename cfg_type::lock_base            base1_type;
     typedef typename cfg_type::growth_policy        growth_policy;
     typedef typename cfg_type::key_lifetime_util    key_lifetime_util;
     typedef typename cfg_type::data_lifetime_util   data_lifetime_util;
 public:
-    typedef typename cfg_type::lock_base            lock_type;
-
     typedef  pair<const key_type&, data_type&>      value_type;
 
     class Allocator : public cfg_type::heap_base {};
@@ -100,7 +94,6 @@ public:
 
     // this we are actually object shearing 
     inline Allocator allocator() const             { return Allocator(*this); }
-    inline lock_type& locking()                    { return static_cast<lock_type&>(*this); }
 
     // Element access
     inline data_type&       at(const key_type& i_ndx)                 { return m_datas[index_of(i_ndx)]; }

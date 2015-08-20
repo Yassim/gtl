@@ -3,11 +3,11 @@
 
 
 #ifndef GTL_TYPES
-#include "..\types.h"
+#include "../types.h"
 #endif // !GTL_TYPES
 
 #ifndef GTL_UTILS
-#include "..\utilities.h"
+#include "../utilities.h"
 #endif // !GTL_UTILS
 
 
@@ -25,17 +25,23 @@ public:
     void free(void * i_p);
     size_type max_size(size_type i_n);
 
-    bool contains(void* i_p) const;
+    inline bool contains(const void* i_p) const { return m_start <= i_p && i_p < m_end;  }
 
     void* header_ptr();
     const void* header_ptr() const;
 
-    static image_base* find_owner(void* i_p);
+    static image_base* find_owner(const void* i_p);
 private:
     image_base();
     image_base& operator=(const image_base&);
 
+    image_base*     m_nextImage;
     const size_type kHeaderSize;
+
+    void*           m_start;
+    void*           m_end;
+
+    static image_base* sm_first_image;
 };
 
 template< typename header>
@@ -62,7 +68,13 @@ public:
     filebacked_heap(const filebacked_heap&) { gtl_assert(image_base::find_owner(this)); }
     ~filebacked_heap() {}
 
-    void * alloc(size_type i_n)             { return image_base::find_owner(this)->alloc(i_n); }
+    void * alloc(size_type i_n)             
+    { 
+        image_base* image = image_base::find_owner(this);
+        gtl_assert(image);
+        return image->alloc(i_n);
+    }
+
     void * realloc(void * i_p, size_type i_n) 
     {
         image_base* image = image_base::find_owner(this);
@@ -70,6 +82,7 @@ public:
         gtl_assert(image == image_base::find_owner(i_p));
         return image->realloc(i_p, i_n);
     }
+
     void free(void * i_p)
     { 
         image_base* image = image_base::find_owner(this);
@@ -77,6 +90,7 @@ public:
         gtl_assert(image == image_base::find_owner(i_p));
         return image->free(i_p); 
     }
+
     size_type max_size(size_type i_n)       { return image_base::find_owner(this)->max_size(i_n); }
 };
 

@@ -1,8 +1,8 @@
-#include "..\include/gtl/vector.h"
-#include "..\include/gtl/array.h"
-#include "..\include/gtl/map.h"
-#include "..\include/gtl/persistant\devirtualised_base.h"
-#include "..\include/gtl/persistant\offset_ptr.h"
+#include "../include/gtl/vector.h"
+#include "../include/gtl/array.h"
+#include "../include/gtl/map.h"
+#include "../include/gtl/persistant/devirtualised_base.h"
+#include "../include/gtl/persistant/offset_ptr.h"
 //#include <vector>
 //#include <utility>
 
@@ -62,11 +62,11 @@ void test_vector()
     tfoo.push_back(4);
 
     for (auto i = begin(tfoo); i != end(tfoo); ++i) {
-        printf("& %d\n", *i);
+        printf("& %d/n", *i);
     }
 
     for (int i : tfoo) {
-        printf("$ %d\n", i);
+        printf("$ %d/n", i);
     }
 
     {int j = 5; (void)j; }
@@ -79,11 +79,11 @@ void test_array()
     int tfoo[5] = { 6, 4, 3, 2, 1 };
 
     for (auto i = begin<int, 5>(tfoo); i != end<int, 5>(tfoo); ++i) {
-        printf("& %d\n", *i);
+        printf("& %d/n", *i);
     }
 
     for (int i : tfoo) {
-        printf("$ %d\n", i);
+        printf("$ %d/n", i);
     }
 
     {int j = 5; (void)j; }
@@ -94,7 +94,7 @@ void test_grow_pow2()
     for (gtl::size_type i = 0; i <= 2048; i++)
     {
         auto j = gtl::grow_pow2_cap<512>::next_size(i);
-        printf("@@ %d -> %d\n", i, j);
+        printf("@@ %d -> %d/n", i, j);
         i = j;
     }
 }
@@ -109,14 +109,14 @@ void test_map()
     tfoo[1] = 42;
 
     for (auto i : tfoo) {
-        printf("kv %d %d\n", i.first, i.second);
+        printf("kv %d %d/n", i.first, i.second);
         if (i.first == 0) i.second = 10;
     }
 
     tfoo.begin()->second = 11;
 
     for (auto i : tfoo) {
-        printf("kv %d %d\n", i.first, i.second);
+        printf("kv %d %d/n", i.first, i.second);
     }
 }
 
@@ -168,8 +168,8 @@ void test_devirtualised()
         {
             print();
             print("test str");
-            printf("as int %d\n", asInt());
-            printf("as float %f\n", asFloat());
+            printf("as int %d/n", asInt());
+            printf("as float %f/n", asFloat());
         }
     };
 
@@ -182,12 +182,12 @@ void test_devirtualised()
 
         void print()
         {
-            printf("int %d\n", m_value);
+            printf("int %d/n", m_value);
         }
 
         void print_str(const char *& i_str)
         {
-            printf("int %s, %d\n", i_str, m_value);
+            printf("int %s, %d/n", i_str, m_value);
         }
 
         int asInt()
@@ -225,12 +225,12 @@ void test_devirtualised()
 
         void print()
         {
-            printf("float %f\n", m_value);
+            printf("float %f/n", m_value);
         }
 
         void print_str(const char *& i_str)
         {
-            printf("float %s, %f\n", i_str, m_value);
+            printf("float %s, %f/n", i_str, m_value);
         }
 
         int asInt()
@@ -277,7 +277,20 @@ void test_offsetptr()
 
     {int j = 5; (void)j; }
 
-    gtl::vector<gtl::persistant::offset_ptr<int, int16_t>> tafoo;
+    typedef gtl::persistant::offset_ptr<int, int16_t> tptr;
+    typedef gtl::vector<tptr> tvector;
+    typedef gtl::base_vector< gtl::vector_cfg<int, gtl::system_heap, int16_t, gtl::grow_by1, tptr > > tipvector;
+
+    tvector tafoo;
+    int ee = gtl::meta::lifetime_util_select<tptr>::type::kReallocSensitive;
+
+    //auto tt = gtl::meta::lifetime_util_select<tvector>::ptr_type();
+    int e = gtl::meta::lifetime_util_select<tvector>::type::kReallocSensitive;
+    int eee = gtl::meta::lifetime_util_select<tipvector>::type::kReallocSensitive;
+    (void)e;
+    (void)ee;
+    (void)eee;
+    //(void)tt;
 
     tafoo.push_back(tfoo);
     tafoo.push_back(tfoo);

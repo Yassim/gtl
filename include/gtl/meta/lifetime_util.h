@@ -3,11 +3,11 @@
 
 
 #ifndef GTL_TYPES
-#include "..\types.h"
+#include "../types.h"
 #endif // !GTL_TYPES
 
 #ifndef GTL_UTILS
-#include "..\utilities.h"
+#include "../utilities.h"
 #endif // !GTL_UTILS
 
 
@@ -244,6 +244,11 @@ struct lifetime_conservitive
         deconstruct_range(i_src, i_end);
     }
 
+    static void emplace(T* i_p)
+    {
+        new (i_p)T();
+    }
+
     template< gtl_tmp_typename1 >
     static void emplace(T* i_p, gtl_dec_typename1)
     {
@@ -281,7 +286,7 @@ struct lifetime_util_select
 template<>                                          \
 struct lifetime_util_select<TYPE>                   \
 {                                                   \
-    typedef lifetime_ ## POLICY <TYPE> type;  \
+    typedef lifetime_ ## POLICY <TYPE> type;        \
 };
 
 template< typename lifetime_util, typename T, typename heap>
@@ -297,7 +302,16 @@ T* typesafe_realloc(T* i_p, size_type i_count, size_type i_size, heap& i_heap)
     }
 }
 
-GTL_LIFETIME_TYPE_SHOUOLD_USE(int, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(int8_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(int16_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(int32_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(int64_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(uint8_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(uint16_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(uint32_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(uint64_t, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(float, pod);
+GTL_LIFETIME_TYPE_SHOUOLD_USE(double, pod);
 
 };
 };

@@ -10,7 +10,7 @@
 #endif // !GTL_UTILS
 
 #ifndef GTLMETA_LIFETIME
-#include "meta\lifetime_util.h"
+#include "meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
 namespace gtl {
