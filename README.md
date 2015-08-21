@@ -27,3 +27,7 @@ Game (or performance) oriented stl replacement
    - [ ] persistant_ptr
  - [ ] spatial
    - [ ] r-tree
+
+## building
+Visual studio. Open the GTL project. press F5
+Clang. command line of "clang++ src/utilities.cc src_test/*.cc src_test/persistant/*.cc src_test/meta/*.cc" works for me so far (Not it does produce warnings in the tests because I'm using C++11 funky ness in them, but not in the main headers)
