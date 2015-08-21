@@ -15,6 +15,8 @@ Game (or performance) oriented stl replacement
  - [ ] unordered_map
  - [ ] queue
  - [ ] pooled_string
+ - [ ] set ?
+ - [ ] list ??
  - [ ] atomic
     - [ ] counter
     - [ ] pointer
