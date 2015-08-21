@@ -1,3 +1,5 @@
+#include "lol_unit.h"
+
 #include "../include/gtl/vector.h"
 #include "../include/gtl/array.h"
 #include "../include/gtl/map.h"

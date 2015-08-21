@@ -88,6 +88,7 @@
     <ClInclude Include="include\gtl\types.h" />
     <ClInclude Include="include\gtl\utilities.h" />
     <ClInclude Include="include\gtl\vector.h" />
+    <ClInclude Include="src_test\lol_unit.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />
@@ -97,7 +98,8 @@
     <ClCompile Include="src\persistant\filebacked_heap.cc" />
     <ClCompile Include="src\persistant\filebacked_heap.windows.cc" />
     <ClCompile Include="src\utilities.cc" />
-    <ClCompile Include="src_test\main.cpp" />
+    <ClCompile Include="src_test\main.cc" />
+    <ClCompile Include="src_test\persistant\devirtiualisedbase.t.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
