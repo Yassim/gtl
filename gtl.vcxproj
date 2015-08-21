@@ -99,7 +99,11 @@
     <ClCompile Include="src\persistant\filebacked_heap.windows.cc" />
     <ClCompile Include="src\utilities.cc" />
     <ClCompile Include="src_test\main.cc" />
+    <ClCompile Include="src_test\map.t.cc" />
+    <ClCompile Include="src_test\meta\lifetimeutil.t.cc" />
     <ClCompile Include="src_test\persistant\devirtiualisedbase.t.cc" />
+    <ClCompile Include="src_test\persistant\offsetptr.t.cc" />
+    <ClCompile Include="src_test\vector.t.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
