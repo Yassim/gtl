@@ -18,11 +18,11 @@ LOLUNIT_FIXTURE(Vector)
         tfoo.push_back(4);
 
         for (auto i = begin(tfoo); i != end(tfoo); ++i) {
-            printf("& %d/n", *i);
+            printf("& %d\n", *i);
         }
 
         for (int i : tfoo) {
-            printf("$ %d/n", i);
+            printf("$ %d\n", i);
         }
 
     {int j = 5; (void)j; }

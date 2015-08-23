@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\gtl\algorithm.h" />
     <ClInclude Include="include\gtl\array.h" />
     <ClInclude Include="include\gtl\grow.h" />
     <ClInclude Include="include\gtl\locking.h" />

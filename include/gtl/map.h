@@ -21,17 +21,47 @@
 #include "utilities.h"
 #endif // !GTL_UTILS
 
+#include "algorithm.h"
+
 #ifndef GTLMETA_LIFETIME
 #include "meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
 namespace gtl {
 
+template<typename T>
+struct map_search_linear
+{
+    static search_result<const T*> search(const T& i_needle, const T * i_haystack, size_type i_n)
+    {
+        return ordered::linear_search(i_needle, i_haystack, i_n);
+    }   
+};
+
+template<typename T>
+struct map_search_binary
+{
+    static search_result<const T*> search(const T& i_needle, const T * i_haystack, size_type i_n)
+    {
+        return ordered::binary_search(i_needle, i_haystack, i_n);
+    }
+};
+
+template<typename T>
+struct map_search_interpolate
+{
+    static search_result<const T*> search(const T& i_needle, const T * i_haystack, size_type i_n)
+    {
+        return ordered::interpolate_search(i_needle, i_haystack, i_n);
+    }
+};
+
 template<
     typename i_key_type,
     typename i_data_type,
     class    i_heap,
     typename i_count = int,
+    typename i_search = map_search_binary<i_key_type>,
     typename i_growth = grow_pow2_cap<512>,
     typename i_key_ptr = i_key_type*,
     typename i_data_ptr = i_data_type*,
@@ -43,6 +73,7 @@ template<
     typedef i_data_type   data_type;
     typedef i_heap     heap_base;
     typedef i_count    count_type;
+    typedef i_search   search_type;
     typedef i_growth   growth_policy;
     typedef i_key_ptr  key_ptr_type;
     typedef i_data_ptr  data_ptr_type;
@@ -57,6 +88,7 @@ class base_map
     typedef typename cfg_type::key_type             key_type;
     typedef typename cfg_type::data_type            data_type;
     typedef typename cfg_type::count_type           count_type;
+    typedef typename cfg_type::search_type          search_type;
     typedef typename cfg_type::key_ptr_type         key_ptr_type;
     typedef typename cfg_type::data_ptr_type        data_ptr_type;
     typedef typename cfg_type::heap_base            base0_type;
@@ -183,28 +215,18 @@ private:
     size_type index_of(const key_type& i_key)
     {
         // permitted to grow
-        key_type * i = m_keys;
-        key_type * e = m_keys + m_count;
-        size_type ndx = m_count;
-
-        //TODO: better than liniear
-        for (; i != e; ++i) {
-            if (*i == i_key) {
-                return i - m_keys;
-            }
-            if (*i > i_key) {
-                // where it should be, but isnt.
-                //lets expand and slot this in.
-                ndx = i - m_keys;
-                break;
-            }
+        search_result<const key_type*> res = search_type::search(i_key, m_keys, m_count);
+        size_type ndx = res.pos - m_keys;
+        if (res.found) {
+            return ndx;
         }
+
         // else not here, and should be at the end
         // ndx should be untouched, thus at m_count
         reserve(m_count + 1);
         // refresh itorators
-        i = m_keys + ndx;
-        e = m_keys + m_count;
+        key_type * i = m_keys + ndx;
+        key_type * e = m_keys + m_count;
         key_lifetime_util::move(i + 1, i, e);
         key_lifetime_util::value_construct_range(i, i + 1, i_key);
 
@@ -222,21 +244,9 @@ private:
     size_type index_of(const key_type& i_key) const
     {
         // assert if not found
-        key_type * i = m_keys;
-        key_type * e = m_keys + m_count;
-        size_type ndx = 0;
-
-        //TODO: better than liniear
-        for (; i != e; ++i) {
-            if (*i == i_key) {
-                return i - m_keys;
-            }
-            if (*i > i_key) {
-                break;
-            }
-        }
-        gtl_assert_msg(false, "Key not found");
-        return ~0;
+        search_result<const key_type*> res = search_type::search(i_key, m_keys, m_count);
+        gtl_assert_msg(res.found, "Key not found");
+        return res.pos - m_keys;
     }
 
     key_ptr_type    m_keys;

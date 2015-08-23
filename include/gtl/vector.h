@@ -473,4 +473,4 @@ namespace meta {
 
 };
 
-#endif GTL_VECTOR
+#endif // GTL_VECTOR
