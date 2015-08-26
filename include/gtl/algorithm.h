@@ -131,4 +131,4 @@ namespace gtl {
     }
 }
 
-#endif GTL_ALGORITHM
+#endif // GTL_ALGORITHM
