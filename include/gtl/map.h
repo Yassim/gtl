@@ -198,10 +198,6 @@ public:
         m_count = 0;
     }
 
-
-
-
-
     void swap(base_map& i_rhs)
     {
         gtl_assert(1); // TODO: heaps are the same
