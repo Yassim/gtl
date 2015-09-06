@@ -49,7 +49,7 @@ class base_vector
     : private cfg_type::heap_base
 {
     typedef typename cfg_type::count_type count_type;
-    typedef typename cfg_type::heap_base base0_type;
+    typedef typename cfg_type::heap_base base_type;
     typedef typename cfg_type::growth_policy growth_policy;
     typedef typename cfg_type::lifetime_util lifetime_util;
 public:
@@ -63,7 +63,7 @@ public:
 
     // Construction
     explicit base_vector(const Allocator& i_heap)
-        : base0_type(i_heap)
+        : base_type(i_heap)
         , m_p(nullptr)
         , m_count(0)
         , m_capacity(0)
@@ -147,21 +147,13 @@ public:
     // Capacity
     inline bool      empty() const                      { return 0 == m_count; }
     inline size_type size() const                       { return m_count; }
-    inline size_type max_size() const                   { return base0_type::max_size(sizeof(T) * std::numeric_limits<count_type>::max()) / sizeof(T); }
+    inline size_type max_size() const                   { return base_type::max_size(sizeof(T) * std::numeric_limits<count_type>::max()) / sizeof(T); }
 
     void             reserve(size_type i_n)
     {
         const size_type n = growth_policy::next_size(i_n);
         if (n > static_cast<size_type>(m_capacity)) {
-            /*static_if(lifetime_util::kReallocSensitive) {
-                T* p = reinterpret_cast<T*>(base0_type::alloc(n * sizeof(T)));
-                lifetime_util::move_non_overlap(p, begin(), end());
-                base0_type::free(m_p);
-                m_p = p;
-            } static_else {
-                m_p = reinterpret_cast<T*>(base0_type::realloc(m_p, n * sizeof(T)));
-            }*/
-            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base0_type&>(*this));
+            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base_type&>(*this));
             m_capacity = n;
         }
     }
@@ -173,10 +165,10 @@ public:
         if (m_count) {
             const size_type n = growth_policy::next_size(m_count);  // should this be count, adn not n?
                                                                     // should the memory be exactly the size needed, or the next size?
-            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base0_type&>(*this));
+            m_p = meta::typesafe_realloc<lifetime_util>(m_p, m_count, n, static_cast<base_type&>(*this));
             m_capacity = n;
         } else {
-            base0_type::free(m_p);
+            base_type::free(m_p);
             m_p = nullptr;
             m_capacity = 0;
         }
