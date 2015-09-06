@@ -41,6 +41,11 @@ private:
     void*           m_start;
     void*           m_end;
 
+
+    struct chunk_type;
+    struct chunk_type_free;
+    chunk_type_free * m_free;
+
     static image_base* sm_first_image;
 };
 

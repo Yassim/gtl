@@ -40,11 +40,13 @@ image_base::~image_base()
     }
 }
 
-struct chunk_type;
-enum {
-    kChunkFlag_Free = 1,
-};
-struct chunk_type {
+
+struct image_base::chunk_type 
+{
+    enum {
+        kChunkFlag_Free = 1,
+    };
+
     offset_ptr_wflags<chunk_type>   next; // could also be used for size
     offset_ptr<chunk_type>          prev; 
 
@@ -56,10 +58,42 @@ struct chunk_type {
         const size_type c = (n - this)-1;
         return c * sizeof(chunk_type);
     }
+    static inline chunk_type* from_void_ptr(void* i_p) { return reinterpret_cast<chunk_type*>(i_p)-1; }
+    inline void * to_void_ptr() { return this + 1; }
+    chunk_type_free * make_free()
+    {
+        chunk_type * out = this;
+        if (next->IsFree()) {
+            // consolidate next;
+            next = next->next;
+        }
+
+        if (prev->IsFree()) {
+            out = prev;
+            out->next = next.get();
+        }
+
+        out->SetFree();
+
+        return reinterpret_cast<chunk_type_free*>(out);
+    }
+};
+
+struct image_base::chunk_type_free : public image_base::chunk_type
+{
+    offset_ptr<chunk_type_free> next_free; // perhaps a double linked list?
 };
 
 void * image_base::alloc(size_type i_n)
 {
+    for (chunk_type_free *p = nullptr, * i = m_free; i; p = i, i = i->next_free) {
+        if (i->Size() <= i_n) { // first fit
+
+            return i->to_void_ptr();
+        }
+    }
+
+    // extend space
     return ::malloc(i_n);
 }
 
@@ -73,9 +107,10 @@ void * image_base::realloc(void * i_p, size_type i_n)
 
 void image_base::free(void * i_p)
 {
-    ::free(i_p);
-
+    chunk_type* c = chunk_type::from_void_ptr(i_p);
+    c->make_free(); // not right yet
 }
+
 size_type image_base::max_size(size_type i_n)         { return i_n; }
 
 }
