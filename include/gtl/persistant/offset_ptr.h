@@ -92,6 +92,7 @@ public:
     offset_ptr(const offset_ptr& i_rhs)     { base_type::set(i_rhs.get()); }
     ~offset_ptr()                           { }
 
+    inline       T* get()                   { return static_cast<T*>(base_type::get()); }
     inline       T* operator ->()           { return static_cast<T*>(base_type::get()); }
     inline const T* operator ->() const     { return static_cast<const T*>(base_type::get()); }
     inline       T& operator *()            { return *static_cast<T*>(base_type::get()); }
@@ -124,6 +125,7 @@ public:
     offset_ptr_wflags(const offset_ptr_wflags& i_rhs)     { base_type::set(i_rhs.get()); }
     ~offset_ptr_wflags()                           { }
 
+    inline       T* get()                   { return static_cast<T*>(base_type::get()); }
     inline       T* operator ->()           { return static_cast<T*>(base_type::get()); }
     inline const T* operator ->() const     { return static_cast<const T*>(base_type::get()); }
     inline       T& operator *()            { return *static_cast<T*>(base_type::get()); }
