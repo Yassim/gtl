@@ -18,30 +18,7 @@
 namespace gtl {
 namespace specialized {
 
-template<typename message_type>
-class messageable_interface
-{
-public:
-    typedef void(*on_msg_type)(messageable_interface * i_self, message_type i_msg);
-
-    ~messageable_interface() {}
-    messageable_interface() :opaque(nullptr), on_msg(no_op) {}
-    messageable_interface(void * i_opaque, on_msg_type i_on_msg) :opaque(i_opaque), on_msg(i_on_msg) {}
-
-    inline void msg(message_type i_msg) {
-        on_msg(this, i_msg);
-    }
-
-private:
-    void * opaque;
-    on_msg_type on_msg;
-
-    static void no_op(messageable_interface * i_self, message_type i_msg) {
-        (void)i_self;
-        (void)i_msg;
-    }
-};
-
+// TODO: move elsewhere?
 template<size_type kBitCount>
 class bitset
 {
@@ -105,7 +82,7 @@ public:
         const block_type tj = *i;
         int_fast32_t j = 0;
         for (; (tj & (1 << j)); ++j) {}
-        return j;
+        return j + (32 * (i - m_bits));
     }
 
 private:
@@ -128,6 +105,7 @@ template<
   //  typedef i_ptr      ptr_type;
     typedef i_lifetime lifetime_util;
 };
+
 
 template<typename cfg_type>
 class phasable_container
@@ -205,8 +183,12 @@ class phasable_container
                     }
                     base_type::free(pi);
                 }
+
+                return;
             }
         }
+
+        gtl_failure("releasing a pointer that is not within this phaseable container");
     }
 public:
     phasable_container()
@@ -226,6 +208,7 @@ public:
 
     T * alloc()
     {
+        m_count++;
         T * p = reinterpret_cast<T*>(first_free());
         lifetime_util::emplace(p);
         return p;
@@ -233,6 +216,9 @@ public:
 
     void free(T * i_ptr)
     {
+        m_count--;
+        lifetime_util::deconstruct_range(i_ptr, i_ptr + 1);
+        release(i_ptr);
     }
 
     template<typename TBatchOp>
@@ -270,31 +256,49 @@ public:
     template<void (T::*k_method)() >
     void run_phase()
     {
-        // for each page
-        for (page_t * pi = m_first; pi; pi = pi->m_next) {
-
-            // make item itterators.
-            T * ii = reinterpret_cast<T*>(pi->m_items);
-            T * ie = ii + kPageCount;
-
-            // if all items on the page are inuse
-            if (pi->m_inuse.all()) {
-                // doa slighlty faster loop with no insue checking. (hopfully, the common case).
-                for (; ii != ie; ++ii) {
-                    (ii->*k_method)();
-                }
-            } else {
-                // make a working iterator
-                for (T * i = ii; i != ie; ++i) {
-                    // test for inuse.
-                    // calc index by pointer
-                    if (pi->m_inuse[i - ii]) { 
-                        (i->*k_method)();
-                    }
-                }
+        struct _ {
+            void operator () (T* i, T* e)
+            {
+                do {
+                    (i->*k_method)();
+                } while (++i != e);
             }
-        }
+        };
+
+        _ op;
+        batch(op);
     }
+
+
+    //// phasing of methods
+    //template<void (T::*k_method)() >
+    //void run_phase()
+    //{
+    //    // for each page
+    //    for (page_t * pi = m_first; pi; pi = pi->m_next) {
+
+    //        // make item itterators.
+    //        T * ii = reinterpret_cast<T*>(pi->m_items);
+    //        T * ie = ii + kPageCount;
+
+    //        // if all items on the page are inuse
+    //        if (pi->m_inuse.all()) {
+    //            // doa slighlty faster loop with no insue checking. (hopfully, the common case).
+    //            for (; ii != ie; ++ii) {
+    //                (ii->*k_method)();
+    //            }
+    //        } else {
+    //            // make a working iterator
+    //            for (T * i = ii; i != ie; ++i) {
+    //                // test for inuse.
+    //                // calc index by pointer
+    //                if (pi->m_inuse[i - ii]) { 
+    //                    (i->*k_method)();
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
    /* template<void (T::*i_op)(gtl_dec_typename1), gtl_tmp_typename1 >
     void run_phase(gtl_dec_typename1)

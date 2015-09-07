@@ -23,17 +23,38 @@ struct health
     void heal() {
         m_heath = min(m_heath + m_rate, m_max);
     }
+
+    static void batch(health * i, health * e)
+    {
+        do {
+            i->heal();
+        } while (++i != e);
+    }
 };
 
 void test_phaseable()
 {
-    gtl::specialized::phasable_container< gtl::specialized::phaseable_cfg<health, gtl::system_heap> > to_test;
+    {
+        gtl::specialized::phasable_container< gtl::specialized::phaseable_cfg<health, gtl::system_heap> > to_test;
 
-    health* a = to_test.alloc(); a->set(100.0f, 100.0f, 1.0f);
-    health* b = to_test.alloc(); b->set(10.0f, 100.0f, 1.0f);
-    health* c = to_test.alloc(); c->set(10.0f, 100.0f, 0.0f);
+        health* a = to_test.alloc(); a->set(100.0f, 100.0f, 1.0f);
+        health* b = to_test.alloc(); b->set(10.0f, 100.0f, 1.0f);
+        health* c = to_test.alloc(); c->set(10.0f, 100.0f, 0.0f);
 
-    to_test.run_phase<&health::heal>();
+        to_test.run_phase<&health::heal>();
+        to_test.batch(&health::batch);
+    }
+
+    {
+        gtl::specialized::phasable_container< gtl::specialized::phaseable_cfg<health, gtl::system_heap> > to_test;
+
+        for (int i = 0; i < 10000; i++) {
+            to_test.alloc()->set((float)i, 100.0f, sinf((float)i / 12.0f));
+        }
+
+        to_test.run_phase<&health::heal>();
+        to_test.batch(&health::batch);
+    }
 }
 
 

@@ -15,6 +15,7 @@ namespace gtl {
 
 #define gtl_assert(X)   assert((X))
 #define gtl_assert_msg(X, MSG)   assert((X) && !(MSG))
+#define gtl_failure(MSG)   assert((false) && !(MSG))
 
 
 // gtl_(tmp|dec|use)_typename(N)
