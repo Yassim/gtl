@@ -85,6 +85,83 @@ public:
         return j + (32 * (i - m_bits));
     }
 
+    struct run_type {
+        size_type b, e;
+        bool valid;
+    };
+
+    inline run_type run_from(size_type i_ndx)
+    {
+        run_type o = { 0 }; // aiming for Return Value Optimisation.
+
+        int_fast32_t index = i_ndx >> kSlotShift;
+        int_fast32_t bit = i_ndx & kSlotMask;
+        block_type mask = 1 << bit;
+
+        for (; index != kBlockCount; ++index) {
+            const block_type tj = m_bits[index];
+
+            if (tj)
+            for (; mask; mask <<= 1, ++bit) {
+                if (tj & mask) {
+                    o.b = bit + index * 32;
+                    o.valid = true;
+                    goto find_end;
+                }
+            }
+            bit = 0;
+            mask = 1;
+        }
+
+        goto out;
+
+    find_end:
+
+        for (; index != kBlockCount; ++index) {
+            const block_type tj = m_bits[index];
+
+            if (tj != 0xffffffff)
+            for (; mask; mask <<= 1, ++bit) {
+                if (!(tj & mask)) {
+                    o.e = bit + index * 32;
+                    goto out;
+                }
+            }
+            bit = 0;
+            mask = 1;
+        }
+
+        o.e = kBitCount;
+
+        //// find next 1
+        //for (; bi != be; ++bi) {
+        //    const block_type tj = *bi;
+        //    if (0 == tj) {
+        //        bit = 0;
+        //        continue;
+        //    }
+        //    for (; !(tj & (1 << bit)); ++bit) {}
+        //    o.b = bit + (32 * (bi - m_bits));
+        //    o.e = kBitCount; // if the next loop dosnt find a 0, then its full to the end.
+        //    break;
+        //}
+
+        //// find next 0
+        //for (; bi != be; ++bi) {
+        //    const block_type tj = *bi;
+        //    if (0xffffffff == tj) {
+        //        bit = 0;
+        //        continue;
+        //    }
+        //    for (; (tj & (1 << bit)); ++bit) {}
+        //    o.e = bit + (32 * (bi - m_bits));
+        //    break;
+        //}
+
+       // o.valid = o.b != o.e;
+        out:
+        return o;
+    }
 private:
     block_type m_bits[kBlockCount];
 };
@@ -119,11 +196,14 @@ class phasable_container
         kPageCount = cfg_type::kPageCount
     };
 
+    typedef bitset<kPageCount> page_bitset;
+    typedef typename bitset<kPageCount>::run_type page_run_type;
+
     typedef uint8_t byte;
     struct page_t {
-        byte                m_items[sizeof(T) * kPageCount];
-        bitset<kPageCount>  m_inuse;
-        page_t *            m_next;
+        byte        m_items[sizeof(T) * kPageCount];
+        page_bitset m_inuse;
+        page_t *    m_next;
     };
 
     page_t * m_first;
@@ -221,6 +301,7 @@ public:
         release(i_ptr);
     }
 
+    // Perfer the Batch method for doing things.
     template<typename TBatchOp>
     void batch(TBatchOp i_batch_op)
     {
@@ -232,7 +313,43 @@ public:
             if (pi->m_inuse.all()) {
                 i_batch_op(ii, ie);
             } else {
-                for (T* s = ii; s != ie; ) {
+                page_run_type r = { 0 };
+                while ((r = pi->m_inuse.run_from(r.e)).valid) {
+                    i_batch_op(ii+r.b, ii+r.e);
+                }
+                //for (T* s = ii; s != ie; ) {
+
+                //    // find start.
+                //    for (; (s != ie) && (!pi->m_inuse[s - ii]); ++s) {}
+
+                //    // find end
+                //    T* e = s;
+                //    for (; (e != ie) && (pi->m_inuse[e - ii]); ++e) {}
+
+                //    // if we have a valid range, do work
+                //    if (s != e) {
+                //        i_batch_op(s, e);
+                //    }
+                //    // start is now the end
+                //    s = e;
+                //}
+            }
+        }
+    }
+
+    template<typename TBatchOp, typename A1>
+    void batch(TBatchOp i_batch_op, A1 i_1)
+    {
+        // for each page
+        for (page_t * pi = m_first; pi; pi = pi->m_next) {
+            T * ii = reinterpret_cast<T*>(pi->m_items);
+            T * ie = ii + kPageCount;
+
+            if (pi->m_inuse.all()) {
+                i_batch_op(ii, ie, i_1);
+            }
+            else {
+                for (T* s = ii; s != ie;) {
 
                     // find start.
                     for (; (s != ie) && (!pi->m_inuse[s - ii]); ++s) {}
@@ -243,7 +360,7 @@ public:
 
                     // if we have a valid range, do work
                     if (s != e) {
-                        i_batch_op(s, e);
+                        i_batch_op(s, e, i_1);
                     }
                     // start is now the end
                     s = e;
@@ -266,6 +383,24 @@ public:
         };
 
         _ op;
+        batch(op);
+    }
+
+    template<typename A1, void(T::*k_method)(A1)>
+    void run_phase(A1 i_1)
+    {
+        struct _ {
+            A1 m_1;
+
+            void operator () (T* i, T* e)
+            {
+                do {
+                    (i->*k_method)(m_1);
+                } while (++i != e);
+            }
+        };
+
+        _ op = { i_1 };
         batch(op);
     }
 
