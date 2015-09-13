@@ -14,15 +14,52 @@
 #include "../meta/lifetime_util.h"
 #endif // !GTLMETA_LIFETIME
 
+#define gtl_force_inline __forceinline
 
 namespace gtl {
 namespace specialized {
+
+// pop, 1's population
+#if defined(MSVC) && (defined(_M_IX86) || defined(_M_IX64))
+    #define pop(x)  (__popcnt(x))
+#else
+    gtl_force_inline int_fast32_t pop_hackersdelight(uint32_t x)
+    {
+        x = x - ((x >> 1) & 0x55555555);
+        x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+        x = (x + (x >> 4)) & 0x0F0F0F0F;
+        x = x + (x << 8);
+        x = x + (x << 16);
+        return x >> 24;
+    }
+    #define pop(x)  (pop_hackersdelight(x))
+#endif
+
+
+    gtl_force_inline int_fast32_t nlz_hackersdelight(uint32_t x)
+    {
+        x = x | (x >> 1);
+        x = x | (x >> 2);
+        x = x | (x >> 4);
+        x = x | (x >> 8);
+        x = x | (x >> 16);
+        return pop(~x);
+    }
+    #define nlz(x)  (nlz_hackersdelight(x))
+
+
+    gtl_force_inline int_fast32_t ntz_hackersdelight(uint32_t x)
+    {
+        return pop(~x & (x - 1));
+    }
+    #define ntz(x)  (ntz_hackersdelight(x))
 
 // TODO: move elsewhere?
 template<size_type kBitCount>
 class bitset
 {
     typedef uint32_t block_type;
+
     enum {
         kBlockCount = kBitCount / (sizeof(block_type) * 8),
         kAllBits = (block_type)~0,
@@ -66,13 +103,13 @@ public:
         m_bits[slot] &= ~mask;
     }
 
-    inline block_type operator[] (size_type i_ndx)
+    /*inline block_type operator[] (size_type i_ndx)
     {
         gtl_assert(i_ndx < kBitCount);
         const size_type slot = i_ndx >> kSlotShift;
         const block_type mask = 1 << (i_ndx & kSlotMask);
         return m_bits[slot] & mask;
-    }
+    }*/
 
     inline size_type first_zero_index() const
     {
@@ -80,8 +117,8 @@ public:
         const block_type * i = m_bits;
         for (; *i == kAllBits; ++i) {}
         const block_type tj = *i;
-        int_fast32_t j = 0;
-        for (; (tj & (1 << j)); ++j) {}
+        const int_fast32_t j = ntz(~tj);
+        //for (; (tj & (1 << j)); ++j) {}
         return j + (32 * (i - m_bits));
     }
 
@@ -99,15 +136,12 @@ public:
         block_type mask = 1 << bit;
 
         for (; index != kBlockCount; ++index) {
-            const block_type tj = m_bits[index];
+            const block_type tj = ~(mask - 1) & m_bits[index];
 
-            if (tj)
-            for (; mask; mask <<= 1, ++bit) {
-                if (tj & mask) {
-                    o.b = bit + index * 32;
-                    o.valid = true;
-                    goto find_end;
-                }
+            if (tj) {
+                o.b = ntz(tj) + index * 32;
+                o.valid = true;
+                goto find_end;
             }
             bit = 0;
             mask = 1;
@@ -115,50 +149,22 @@ public:
 
         goto out;
 
-    find_end:
-
         for (; index != kBlockCount; ++index) {
-            const block_type tj = m_bits[index];
 
-            if (tj != 0xffffffff)
-            for (; mask; mask <<= 1, ++bit) {
-                if (!(tj & mask)) {
-                    o.e = bit + index * 32;
-                    goto out;
-                }
+        find_end:
+            const block_type tj = (mask - 1) | m_bits[index];
+
+            if (tj != 0xffffffff) {
+                o.e = ntz(~tj) + index * 32;
+                goto out;
             }
+
             bit = 0;
             mask = 1;
         }
 
         o.e = kBitCount;
 
-        //// find next 1
-        //for (; bi != be; ++bi) {
-        //    const block_type tj = *bi;
-        //    if (0 == tj) {
-        //        bit = 0;
-        //        continue;
-        //    }
-        //    for (; !(tj & (1 << bit)); ++bit) {}
-        //    o.b = bit + (32 * (bi - m_bits));
-        //    o.e = kBitCount; // if the next loop dosnt find a 0, then its full to the end.
-        //    break;
-        //}
-
-        //// find next 0
-        //for (; bi != be; ++bi) {
-        //    const block_type tj = *bi;
-        //    if (0xffffffff == tj) {
-        //        bit = 0;
-        //        continue;
-        //    }
-        //    for (; (tj & (1 << bit)); ++bit) {}
-        //    o.e = bit + (32 * (bi - m_bits));
-        //    break;
-        //}
-
-       // o.valid = o.b != o.e;
         out:
         return o;
     }
